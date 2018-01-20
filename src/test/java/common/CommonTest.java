@@ -12,6 +12,10 @@ import java.net.UnknownHostException;
 
 import org.junit.Test;
 
+import net.sf.json.JSONObject;
+import util.HttpUtil;
+import util.PropUtil;
+
 public class CommonTest {
 	
 	@Test
@@ -54,6 +58,12 @@ public class CommonTest {
 			data = br.readLine();
 		}
 		System.out.println(sb.toString());
+	}
+	
+	@Test
+	public void 用户登录(){
+		JSONObject obj = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account=zhangqing&password=202cb962ac59075b964b7152d234b70");
+		System.out.println(obj);
 	}
 	
 }

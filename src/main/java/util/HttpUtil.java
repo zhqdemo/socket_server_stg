@@ -1,7 +1,9 @@
 package util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -34,7 +36,7 @@ public class HttpUtil {
 //		String nonce = Calendar.getInstance().getTimeInMillis()+"";
 //		String curTime = Calendar.getInstance().getTimeInMillis()/1000+"";
 		try {
-			URL url1 = new URL(url+params);
+			URL url1 = new URL(url+(params==null?"":params));
 			HttpURLConnection conn = (HttpURLConnection)url1.openConnection();
 	        conn.setRequestProperty("contentType", "UTF-8");
 	        conn.setRequestMethod("POST");
@@ -46,7 +48,8 @@ public class HttpUtil {
 	        
 	        conn.setConnectTimeout(120 * 1000);
 	        InputStream inStream =  conn.getInputStream();  //通过输入流获取html二进制数据
-	        String htmlSource = readInputStream(inStream);  
+	        String htmlSource = readInputStream(inStream); 
+	        inStream.close();
 	        return JSONObject.fromObject(htmlSource);
 
 		} catch (Exception e) {
@@ -83,7 +86,9 @@ public class HttpUtil {
 
         // 设置请求的参数
         try {
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps, "utf-8"));
+        	if(nvps!=null){        		
+        		httpPost.setEntity(new UrlEncodedFormEntity(nvps, "utf-8"));
+        	}
 			// 执行请求
 			HttpResponse response;
 			response = httpClient.execute(httpPost);
@@ -102,25 +107,15 @@ public class HttpUtil {
 	}
 	
 	public static String readInputStream(InputStream instream) throws Exception {
-		StringBuilder sb1 = new StringBuilder();      
-        byte[] bytes = new byte[4096];    
-        int size = 0;    
-          
-        try {      
-            while ((size = instream.read(bytes)) > 0) {    
-                String str = new String(bytes, 0, size, "UTF-8");    
-                sb1.append(str);    
-            }    
-        } catch (IOException e) {      
-            e.printStackTrace();      
-        } finally {      
-            try {      
-            	instream.close();      
-            } catch (IOException e) {      
-               e.printStackTrace();      
-            }      
-        }      
-        return sb1.toString();   
+		InputStreamReader reader = new InputStreamReader(instream,"UTF-8");
+		BufferedReader br = new BufferedReader(reader);
+		StringBuffer sb = new StringBuffer();
+		String data = br.readLine();
+		while (data!=null) {
+			sb.append(data+"\n");
+			data = br.readLine();
+		} 
+		return sb.toString();
     }
 	 // 计算并获取CheckSum
 	public static String getCheckSum(String appSecret, String nonce, String curTime) {

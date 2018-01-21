@@ -27,5 +27,7 @@ public class Constants {
 		public static final int DESTROY_OBJ = 7;
 		/**请求同步数据*/
 		public static final int SYNC_DATA = 8;
+		
+		public static final int LOGIN = 11;
 	}
 }

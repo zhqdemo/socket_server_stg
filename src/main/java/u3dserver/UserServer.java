@@ -1,18 +1,25 @@
 package u3dserver;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
+
+import org.apache.log4j.Logger;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import util.Constants;
+import util.HttpUtil;
 import util.LogUtil;
+import util.PropUtil;
 
 public class UserServer extends Thread{
+	Logger log = Logger.getLogger(this.getClass());
 	InputStream input;
 	BufferedReader reader;
 	OutputStream out;
@@ -20,6 +27,7 @@ public class UserServer extends Thread{
 	private Socket socket = null;
 	private String userid = null;
 	public UserServer(Socket socket){
+		log.info("init");
 		try{
 			this.socket = socket;			
 			input = socket.getInputStream();
@@ -64,10 +72,14 @@ public class UserServer extends Thread{
 				}
 			}
 		}
-		catch (Exception e) {
+		catch (SocketException e) {
+			e.printStackTrace();			
+			MainServer.instance().unonline();
+			MainServer.instance().deleteUser(this.userid);			
+		}catch(Exception e){
 			e.printStackTrace();
 			MainServer.instance().unonline();
-			MainServer.instance().deleteUser(this.userid);
+			MainServer.instance().deleteUser(this.userid);		
 		}
 		
 	}
@@ -107,6 +119,14 @@ public class UserServer extends Thread{
 							String username = obj.getString("un");
 							MainServer.instance().addUser(username, this);
 							this.userid = username;
+						}break;
+						case Constants.AVTIVE_TYPE.LOGIN:{
+							String account = obj.getString("u");
+							String password = obj.getString("p");
+							JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
+							log.debug(result.toString());
+							System.out.println(result);
+							this.sendMsg(result.toString());
 						}break;
 						default:{
 							MainServer.instance().sendData2All(data);

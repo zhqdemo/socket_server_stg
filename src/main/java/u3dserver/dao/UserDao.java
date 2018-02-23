@@ -1,5 +1,6 @@
 package u3dserver.dao;
 
+import net.sf.json.JSONObject;
 import util.Constants;
 
 /**
@@ -12,5 +13,9 @@ public class UserDao {
 	public int getUserState(String account){
 		
 		return Constants.CONS.USER_STATE_OK;
+	}
+	
+	public JSONObject getRoleList(String account){
+		return null;
 	}
 }

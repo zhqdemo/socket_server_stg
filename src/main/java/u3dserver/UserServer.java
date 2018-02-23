@@ -196,7 +196,7 @@ public class UserServer extends Thread{
 		MainServer.instance().sendData2All(obj.toString());
 	}
 	/**
-	 * 获取角色信息
+	 * 获取角色列表
 	 * @param obj
 	 */
 	public void getRoleList(JSONObject obj){

@@ -40,5 +40,5 @@ public class Constants {
 		public static final int USER_STATE_OK = 0;
 		/**用户状态异常*/
 		public static final int USER_STATE_ERROR = 1;
-	}
+	}	
 }

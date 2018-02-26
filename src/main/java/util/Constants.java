@@ -26,6 +26,8 @@ public class Constants {
 		public static final int LOGIN = 11;
 		/**弹出消息*/
 		public static final int ALERT = 12;
+		/**角色列表*/
+		public static final int ROLE_LIST = 10001;
 	}
 	/**错误代码*/
 	public static final class RESULT_CODE{

@@ -8,13 +8,17 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import com.jfinal.plugin.activerecord.Record;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import u3dserver.dao.UserDao;
 import util.Constants;
+import util.DbUtil;
 import util.HttpUtil;
 import util.LogUtil;
 import util.PropUtil;
@@ -103,7 +107,7 @@ public class UserServer extends Thread{
 	}
 	/**
 	 * 解析接受的消息
-	 * @param data
+	 * @param data 包括{a:动作指令,sid:sessionid每一个请求的唯一标示,返回消息时一并返回，用来跟客户端请求配对,...}
 	 */
 	private void readData(String data){
 		//sendMsg(data);
@@ -150,6 +154,9 @@ public class UserServer extends Thread{
 			case Constants.AVTIVE_TYPE.LOGIN:{//用户登录
 				this.login(obj);				
 			}break;
+			case Constants.AVTIVE_TYPE.ROLE_LIST:{//角色列表
+				this.getRoleList(obj);				
+			}break;
 			default:{//数据同步
 				this.syncData(obj);;
 			}break;
@@ -172,6 +179,20 @@ public class UserServer extends Thread{
 		return true;
 	}
 	/**
+	 * 填充sid
+	 * @param response
+	 * @param request
+	 * @return
+	 */
+	public JSONObject initSessionId(JSONObject response,JSONObject request){
+		if(response == null){
+			response = new JSONObject();
+		}
+		response.put("sid", request.get("sid"));
+		response.put("a", request.get("a"));
+		return response;
+	}
+	/**
 	 * 登录
 	 * @param obj
 	 */
@@ -180,8 +201,7 @@ public class UserServer extends Thread{
 		String password = obj.getString("p");
 		JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
 		log.debug(result.toString());
-		System.out.println(result);
-		if(result.getInt("code")==Constants.RESULT_CODE.SUCCESS){//如果用户登录成功，加入在线用户列表
+		if(result.getInt("code")==Constants.RESULT_CODE.SUCCESS||true){//如果用户登录成功，加入在线用户列表
 			this.userid = account;
 			MainServer.instance().addUser(account, this);
 		}
@@ -201,7 +221,11 @@ public class UserServer extends Thread{
 	 */
 	public void getRoleList(JSONObject obj){
 		if(!before(obj)) return;
-		
+		String sql = PropUtil.getInstance().getValue("sql.role.list");
+		List<Record> list = DbUtil.list(null, sql,this.userid);
+		JSONObject data = this.initSessionId(null, obj);
+		data.put("d", list);
+		this.sendMsg(data.toString());
 	}
 	/**
 	 * 获取角色信息

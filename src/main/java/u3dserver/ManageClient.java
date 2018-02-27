@@ -104,6 +104,7 @@ public class ManageClient extends JFrame implements SocketParse{
 			loginMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					textField.setText(content);
+					//client.sendMsg(content);
 				}
 			});	
 			menu.add(loginMenuItem);

@@ -9,9 +9,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
-
+import com.jfinal.log.Logger;
 import com.jfinal.plugin.activerecord.Record;
 
 import net.sf.json.JSONArray;
@@ -20,7 +20,6 @@ import u3dserver.dao.UserDao;
 import util.Constants;
 import util.DbUtil;
 import util.HttpUtil;
-import util.LogUtil;
 import util.PropUtil;
 /**
  * 用户socket服务线程
@@ -59,7 +58,7 @@ public class UserServer extends Thread{
 			//输入流
 			String data = reader.readLine();
 			while (data!=null) {
-				LogUtil.log("服务器接收到请求："+data);
+				log.info("服务器接收到请求："+data);
 				//将收到的数据发送给客户端
 				if(data.equals("exit")){
 					pw.write("connect closed;\n");
@@ -78,7 +77,7 @@ public class UserServer extends Thread{
 						MainServer.instance().unonline();
 						if(this.userid!=null){							
 							MainServer.instance().deleteUser(this.userid);
-							LogUtil.log("用户下线："+this.userid);
+							log.info("用户下线："+this.userid);
 						}
 					}else{						
 						data = reader.readLine();
@@ -120,7 +119,7 @@ public class UserServer extends Thread{
 				array = JSONArray.fromObject(data);
 			}
 		}catch(Exception e){
-			LogUtil.log("收到数据非json"+data);
+			log.error("收到数据非json"+data);
 			//e.printStackTrace();
 			return;
 		}
@@ -133,7 +132,7 @@ public class UserServer extends Thread{
 					int active = Integer.parseInt(a.toString());
 					this.parse(active, obj);//解析命令
 				}catch(Exception e){
-					LogUtil.log("json解析错误"+obj.toString());
+					log.error("json解析错误"+obj.toString());
 					//e.printStackTrace();
 					return;
 				}
@@ -172,7 +171,7 @@ public class UserServer extends Thread{
 			JSONObject msg = new JSONObject();
 			msg.put("a", Constants.AVTIVE_TYPE.ALERT);
 			msg.put("c", Constants.RESULT_CODE.FAIL);
-			msg.put("m", "用户为登录");
+			msg.put("m", "用户未登录");
 			this.sendMsg(msg.toString());
 			return false;
 		}
@@ -222,7 +221,7 @@ public class UserServer extends Thread{
 	public void getRoleList(JSONObject obj){
 		if(!before(obj)) return;
 		String sql = PropUtil.getInstance().getValue("sql.role.list");
-		List<Record> list = DbUtil.list(null, sql,this.userid);
+		List<Map<String,Object>> list = DbUtil.list(null, sql,this.userid);
 		JSONObject data = this.initSessionId(null, obj);
 		data.put("d", list);
 		this.sendMsg(data.toString());
@@ -241,7 +240,13 @@ public class UserServer extends Thread{
 	 */
 	public void createRole(JSONObject obj){
 		if(!before(obj)) return;
-		
+		String rolename = obj.getString("name");
+		String img = obj.getString("img");
+		String sql = PropUtil.getInstance().getValue("sql.role.insert");
+		boolean result = DbUtil.update(null, sql,this.userid,rolename,img);
+		JSONObject data = this.initSessionId(null, obj);
+		data.put("c", result?Constants.RESULT_CODE.SUCCESS:Constants.RESULT_CODE.FAIL);
+		this.sendMsg(data.toString());
 	}
 	/**
 	 * 删除角色

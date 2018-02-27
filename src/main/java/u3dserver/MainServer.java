@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.LogUtil;
+import com.jfinal.log.Logger;
+
+import util.PropUtil;
 
 public class MainServer{
+	private Logger log = Logger.getLogger(this.getClass());
 	/**监听端口*/
-	private int prot = 1013;
+	private int prot = Integer.parseInt(PropUtil.getInstance().getValue("server.port"));
 	/**在线人数*/
 	private int countOnlineUser = 0;
 	/**自己实例*/
@@ -31,7 +34,9 @@ public class MainServer{
 		try {
 			ServerSocket server = new ServerSocket(prot);			
 			new StartServer(server).start();
+			log.info("服务启动成功，监听端口："+prot);
 		} catch (IOException e) {
+			log.error("服务器启动失败："+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -84,7 +89,7 @@ public class MainServer{
 	 * @param data
 	 */
 	public void sendData2All(String data){
-		LogUtil.log("发送消息给所有用户:"+listUser.size());
+		log.info("发送消息给所有用户:"+listUser.size());
 		for(String id:listUser){
 			UserServer userServer = mapUser.get(id);
 			userServer.sendMsg(data);
@@ -96,7 +101,7 @@ public class MainServer{
 	 * @param user
 	 */
 	public void addUser(String id,UserServer user){
-		LogUtil.log("加入新用户:"+id);
+		log.info("加入新用户:"+id);
 		UserServer u = mapUser.get(id);
 		mapUser.put(id, user);
 		if(u!=null){

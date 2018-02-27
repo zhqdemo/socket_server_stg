@@ -9,7 +9,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import util.LogUtil;
 import util.PropUtil;
 
 public class ManagerClientSocket extends Thread{

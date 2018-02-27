@@ -83,7 +83,14 @@ public class DbUtil {
 		}
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
-		return Db.use(""+dbName).update(sql)>0;
+		boolean result = false;
+		try{
+			result = Db.use(""+dbName).update(sql)>0;
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
+		}
+		return result;
 	}
 	/**
 	 * 查询集合
@@ -97,17 +104,22 @@ public class DbUtil {
 		}
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
-		//Record r = Db.use(""+dbName).findFirst(sql);
-		//String [] cname = r.getColumnNames();
-		List<Record> list = Db.use(""+dbName).find(sql);
 		List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
-		for(Record r:list){
-			String [] colums = r.getColumnNames();
-			Map<String,Object> map = new HashMap<String,Object>();
-			for(String col:colums){
-				map.put(col, r.get(col));
+		try{
+			//Record r = Db.use(""+dbName).findFirst(sql);
+			//String [] cname = r.getColumnNames();
+			List<Record> list = Db.use(""+dbName).find(sql);
+			for(Record r:list){
+				String [] colums = r.getColumnNames();
+				Map<String,Object> map = new HashMap<String,Object>();
+				for(String col:colums){
+					map.put(col, r.get(col));
+				}
+				result.add(map);
 			}
-			result.add(map);
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
 		}
 		return result;
 	}
@@ -123,7 +135,17 @@ public class DbUtil {
 		}
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
-		return Db.use(""+dbName).findFirst(sql);
+		
+		
+		//return Db.use(""+dbName).findFirst(sql);
+		Record result = null;
+		try{
+			result = Db.use(""+dbName).findFirst(sql);
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
+		}
+		return result;
 	}
 	/**
 	 * 执行更新操作(非线程安全)
@@ -138,7 +160,15 @@ public class DbUtil {
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
 		
-		return Db.use(""+dbName).update(sql,params)>0;
+		//return Db.use(""+dbName).update(sql,params)>0;
+		boolean result = false;
+		try{
+			result = Db.use(""+dbName).update(sql,params)>0;
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
+		}
+		return result;
 	}
 	/**
 	 * 查询集合
@@ -146,13 +176,21 @@ public class DbUtil {
 	 * @param sql
 	 * @return
 	 */
-	public static List<Record> list(String dbName,String sql,Object... params){
+	public static List<Map<String,Object>> list(String dbName,String sql,Object... params){
 		if(dbName==null){
 			dbName = PropUtil.getInstance().getValue("sql.dbname").trim();
 		}
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
-		return Db.use(""+dbName).find(sql,params);
+		//return Db.use(""+dbName).find(sql,params);
+		List<Record> result = null;
+		try{
+			result = Db.use(""+dbName).find(sql,params);
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
+		}
+		return DbUtil.Record2map(result);
 	}
 	/**
 	 * 查询集合
@@ -160,13 +198,21 @@ public class DbUtil {
 	 * @param sql
 	 * @return
 	 */
-	public static List<Record> list(String dbName,String sql){
+	public static List<Map<String,Object>> list(String dbName,String sql){
 		if(dbName==null){
 			dbName = PropUtil.getInstance().getValue("sql.dbname").trim();
 		}
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
-		return Db.use(""+dbName).find(sql);
+		//return Db.use(""+dbName).find(sql);
+		List<Record> result = null;
+		try{
+			result = Db.use(""+dbName).find(sql);
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
+		}
+		return DbUtil.Record2map(result);
 	}
 	/**
 	 * 获取单个信息
@@ -180,10 +226,66 @@ public class DbUtil {
 		}
 		log.debug("dbName:"+dbName+",sql:"+sql);
 		getDataSource(dbName);
-		return Db.use(""+dbName).findFirst(sql,params);
+		//return Db.use(""+dbName).findFirst(sql,params);
+		Record result = null;
+		try{
+			result = Db.use(""+dbName).findFirst(sql,params);
+		}catch(Exception e){
+			log.error(e.getMessage()+",dbName:"+dbName+",sql:"+sql);
+			e.printStackTrace();
+		}
+		return result;
 	}
+	
+	private static List<Map<String,Object>> Record2map(List<Record> list){
+		List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
+		try{
+			//Record r = Db.use(""+dbName).findFirst(sql);
+			//String [] cname = r.getColumnNames();
+			for(Record r:list){
+				String [] colums = r.getColumnNames();
+				Map<String,Object> map = new HashMap<String,Object>();
+				for(String col:colums){
+					map.put(col, getFormatData(r.get(col)));
+				}
+				result.add(map);
+			}
+		}catch(Exception e){
+			log.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	/**
+	 * 部分数据对象需要转换的
+	 * @param data
+	 * @return
+	 */
+	public static Object getFormatData(Object data){
+		if(data==null){
+			return data;
+		}
+		switch (data.getClass().getName()) {
+		case "java.sql.Timestamp":{
+			java.sql.Timestamp d = (java.sql.Timestamp)data;
+			return DateUtil.formatdate(d);
+		}
+		case "java.sql.Date":{
+			java.sql.Date d = (java.sql.Date)data;
+			return DateUtil.formatTime(d, "yyyy-MM-dd");
+		}
+		case "java.sql.Time":{
+			java.sql.Time d = (java.sql.Time)data;
+			return DateUtil.formatTime(d, "HH:mm:ss");
+		}
+		default:
+			return data;
+		}
+	}
+	
 	public static void main(String a[]){
-		List<Record> list = DbUtil.list(null, "select * from test");
+		List<Map<String,Object>> list = DbUtil.list(null, "select * from test");
 	}
 	
 }

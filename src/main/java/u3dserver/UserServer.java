@@ -16,6 +16,7 @@ import com.jfinal.plugin.activerecord.Record;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import u3dserver.business.UserBs;
 import u3dserver.dao.UserDao;
 import util.Constants;
 import util.DbUtil;
@@ -200,11 +201,17 @@ public class UserServer extends Thread{
 		String password = obj.getString("p");
 		JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
 		log.debug(result.toString());
+		JSONObject res = new JSONObject();
+		res = this.initSessionId(res, obj);
 		if(result.getInt("code")==Constants.RESULT_CODE.SUCCESS||true){//如果用户登录成功，加入在线用户列表
 			this.userid = account;
+			Map<String,Object> usermap = UserBs.bs.getUserInfo(account, result);
+			if(usermap!=null){
+				res.put("userinfo", JSONObject.fromObject(usermap));
+			}
 			MainServer.instance().addUser(account, this);
 		}
-		this.sendMsg(result.toString());
+		this.sendMsg(res.toString());
 	}
 	/**
 	 * 同步数据，将自己发出的指令同步到给其他用户
@@ -232,6 +239,7 @@ public class UserServer extends Thread{
 	 */
 	public void getRoleInfo(JSONObject obj){
 		if(!before(obj)) return;
+		
 		
 	}
 	/**

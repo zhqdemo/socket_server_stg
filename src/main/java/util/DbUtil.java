@@ -236,8 +236,33 @@ public class DbUtil {
 		}
 		return result;
 	}
-	
-	private static List<Map<String,Object>> Record2map(List<Record> list){
+	/**
+	 * 将recode转换为map
+	 * @param data
+	 * @return
+	 */
+	public static Map<String,Object> Record2map(Record data){
+		if(data==null){
+			return null;
+		}
+		Map<String,Object> result = new HashMap<String,Object>();
+		try{
+			String [] colums = data.getColumnNames();
+			for(String col:colums){
+				result.put(col, getFormatData(data.get(col)));
+			}
+		}catch(Exception e){
+			log.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return result;
+	}
+	/**
+	 * 将recodelist转换为maplist
+	 * @param list
+	 * @return
+	 */
+	public static List<Map<String,Object>> Record2map(List<Record> list){
 		List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
 		try{
 			//Record r = Db.use(""+dbName).findFirst(sql);

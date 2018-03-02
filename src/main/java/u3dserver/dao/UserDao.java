@@ -10,7 +10,13 @@ import util.Constants;
  */
 public class UserDao {
 	public static UserDao dao = new UserDao();
-	public int getUserState(String account){
+	/**
+	 * 获取用户状态，如果数据库中已存在该用户
+	 * @param account
+	 * @param userinfo
+	 * @return
+	 */
+	public int getUserState(String account,JSONObject userinfo){
 		
 		return Constants.CONS.USER_STATE_OK;
 	}

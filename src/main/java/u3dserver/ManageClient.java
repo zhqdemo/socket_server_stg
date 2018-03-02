@@ -24,8 +24,11 @@ import javax.swing.JEditorPane;
 import javax.swing.Box;
 import java.awt.TextArea;
 import java.awt.Button;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 import javax.swing.GroupLayout;
@@ -33,17 +36,21 @@ import javax.swing.GroupLayout.Alignment;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.ScrollPane;
+
 import javax.swing.JScrollBar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.awt.Font;
+import java.awt.Scrollbar;
 
 @SuppressWarnings("serial")
 public class ManageClient extends JFrame implements SocketParse{
 	private JTextField textField;
 	private JTextArea textArea;
 	private ManagerClientSocket client;
+	private ScrollPane scrollPane ;
 	public ManageClient() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 500);
@@ -81,12 +88,18 @@ public class ManageClient extends JFrame implements SocketParse{
 		getContentPane().add(panel_4, BorderLayout.CENTER);
 		panel_4.setLayout(new BoxLayout(panel_4, BoxLayout.X_AXIS));
 		
+		
 		textArea = new JTextArea();
 		textArea.setEditable(false);
 		textArea.setRows(3);
 		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		panel_4.add(textArea);
+		textArea.setWrapStyleWord(true);		
+		//panel_4.add(textArea);
+		
+		scrollPane = new ScrollPane();
+		scrollPane.add(textArea);
+		panel_4.add(scrollPane);	
+		
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -111,6 +124,16 @@ public class ManageClient extends JFrame implements SocketParse{
 		}		
 		client = new ManagerClientSocket(this);
 		client.start();
+		
+		/**
+		 * 
+		 */
+		this.addComponentListener(new ComponentAdapter(){
+		    @Override public void componentResized(ComponentEvent e){
+		    	scrollPane.setSize(ManageClient.this.getWidth()-40, ManageClient.this.getHeight()-200);
+		    	textArea.setSize(scrollPane.getWidth()-20, textArea.getHeight());
+		    }
+		});
 	}
 	public static void main(String [] a){
 		new ManageClient();
@@ -119,6 +142,7 @@ public class ManageClient extends JFrame implements SocketParse{
 	@Override
 	public void parse(String msg) {
 		this.textArea.append(msg+"\n");
+		scrollPane.setScrollPosition(0, textArea.getHeight());
 		// TODO Auto-generated method stub
 		
 	}	

@@ -17,6 +17,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import net.sf.json.JSONObject;
@@ -31,6 +32,7 @@ public class HttpUtil {
 	 * @return
 	 */
 	public static JSONObject getSimpleHttpresult(String url,String params){
+//		NameValuePair p1 = new BasicNameValuePair("pwd","2544") ;
 //		String appSecret = PropUtil.getInstance().getValue("im.appsecret");
 //		String appKey = PropUtil.getInstance().getValue("im.appkey");
 //		String nonce = Calendar.getInstance().getTimeInMillis()+"";

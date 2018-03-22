@@ -1,4 +1,4 @@
-package u3dserver;
+package u3dserver.manage;
 
 import java.awt.BorderLayout;
 
@@ -33,6 +33,9 @@ import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+
+import u3dserver.parse.SocketParse;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -65,7 +68,7 @@ public class ManageClient extends JFrame implements SocketParse{
 		panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.X_AXIS));
 		
 		textField = new JTextField();
-		textField.setFont(new Font("Cambria", Font.PLAIN, 12));
+		textField.setFont(new Font("宋体", Font.PLAIN, 12));
 		panel_1.add(textField);
 		textField.setColumns(50);
 		

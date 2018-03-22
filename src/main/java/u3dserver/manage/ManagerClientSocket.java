@@ -1,4 +1,4 @@
-package u3dserver;
+package u3dserver.manage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import u3dserver.parse.SocketParse;
 import util.PropUtil;
 
 public class ManagerClientSocket extends Thread{

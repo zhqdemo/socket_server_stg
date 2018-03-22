@@ -1,4 +1,4 @@
-package u3dserver;
+package u3dserver.user;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import com.jfinal.plugin.activerecord.Record;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import u3dserver.MainServer;
 import u3dserver.business.UserBs;
 import u3dserver.dao.UserDao;
 import util.Constants;

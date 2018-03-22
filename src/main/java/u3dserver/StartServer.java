@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import com.jfinal.log.Logger;
 
+import u3dserver.user.UserServer;
+
 public class StartServer extends Thread{
 	private Logger log = Logger.getLogger(this.getClass()) ;
 	private ServerSocket server = null;

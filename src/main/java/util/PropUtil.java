@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * properties文件操作工具类
@@ -94,13 +96,14 @@ public class PropUtil {
      * @throws UnsupportedEncodingException 
      */
     public String getValue(String key){
-    	String result = null;
+    	/*String result = null;
 		try {
 			result = new String(info.getProperty(key).getBytes("ISO-8859-1"),"UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-    	return result;
+    	return result;*/
+    	return this.getValue(key, null);
     }
     /**
      * 根据key获得对应的value，没有value则返回默认值
@@ -113,7 +116,17 @@ public class PropUtil {
      */
     public String getValue(String key,String defaultValue){
     	String result = info.getProperty(key, defaultValue);
-    	if(result!=null&&defaultValue.equals(result)){
+    	//值中又包含键的替换
+    	List<String> keys = this.getKeyInValue(result);
+    	if(keys!=null&&keys.size()>0){
+    		for(String k:keys){
+    			String r = this.getValue(k);
+    			result = result.replace("{"+k+"}", r);
+    		}
+    	}
+    	//end
+    	
+    	if(result!=null&&result.equals(defaultValue)){
     		return result;
     	}
     	try {
@@ -184,13 +197,32 @@ public class PropUtil {
     	}
     	return prop;
     }
-    	
+    /**
+     * 获取value中的配置key
+     * @param value
+     * @return
+     */
+	public List<String> getKeyInValue(String value) {
+		String regex = "\\{[\\w\\.]*\\}";
+		Pattern p = Pattern.compile(regex);
+		// 获取 matcher 对象
+		Matcher m = p.matcher(value);
+		List<String> keys = null;
+		while (m.find()) {
+			if (keys == null) {
+				keys = new ArrayList<>();
+			}
+			String k = m.group();
+			keys.add(k.substring(1, k.length()-1));
+		}
+		return keys;
+	}
     
     public static void main(String [] arg) throws UnsupportedEncodingException{
-    	String test = PropUtil.getInstance().getValue("download.iphone");
+    	//String test = PropUtil.getInstance().getValue("download.iphone");
     	//test = new String(test.getBytes("ISO-8859-1"),"UTF-8");
-    	System.out.println(test);
-    	
+    	//System.out.println(test);
+    	System.out.println(PropUtil.getInstance().getValue("api.test1"));
     }
 
 }

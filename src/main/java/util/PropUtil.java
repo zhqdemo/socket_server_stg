@@ -121,7 +121,7 @@ public class PropUtil {
     	if(keys!=null&&keys.size()>0){
     		for(String k:keys){
     			String r = this.getValue(k);
-    			result = result.replace("{"+k+"}", r);
+    			result = result.replace("${"+k+"}", r);
     		}
     	}
     	//end
@@ -203,7 +203,7 @@ public class PropUtil {
      * @return
      */
 	public List<String> getKeyInValue(String value) {
-		String regex = "\\{[\\w\\.]*\\}";
+		String regex = "\\$\\{[\\w\\.]*\\}";
 		Pattern p = Pattern.compile(regex);
 		// 获取 matcher 对象
 		Matcher m = p.matcher(value);
@@ -213,7 +213,7 @@ public class PropUtil {
 				keys = new ArrayList<>();
 			}
 			String k = m.group();
-			keys.add(k.substring(1, k.length()-1));
+			keys.add(k.substring(2, k.length()-1));
 		}
 		return keys;
 	}

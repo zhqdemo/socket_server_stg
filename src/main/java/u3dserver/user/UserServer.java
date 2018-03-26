@@ -37,6 +37,13 @@ public class UserServer extends Thread{
 	private Socket socket = null;//socket
 	private String userid = null;//用户ID
 	private UserDao dao = UserDao.dao;//用户数据库操作类
+	private UserParse parse = new UserParse(this);//操作解析类
+	public String getUserid() {
+		return userid;
+	}
+	public void setUserid(String userid) {
+		this.userid = userid;
+	}
 	/***
 	 * 构造方法初始化socket链接和输入输出参数
 	 * @param socket
@@ -132,7 +139,8 @@ public class UserServer extends Thread{
 					//{"a":"123","un":"123123123123123123"}
 					//{"a":"1","un":"1234"}
 					int active = Integer.parseInt(a.toString());
-					this.parse(active, obj);//解析命令
+					//解析指令
+					parse.parse(active, obj);
 				}catch(Exception e){
 					log.error("json解析错误"+obj.toString());
 					//e.printStackTrace();
@@ -145,148 +153,5 @@ public class UserServer extends Thread{
 		}		
 		//向所有客户端发出
 	}	
-	/**
-	 * 解析命令
-	 * @param active 动作
-	 * @param obj 客户端发来的数据
-	 */
-	public void parse(int active,JSONObject obj){
-		switch (active) {
-			case Constants.AVTIVE_TYPE.LOGIN:{//用户登录
-				this.login(obj);				
-			}break;
-			case Constants.AVTIVE_TYPE.ROLE_LIST:{//角色列表
-				this.getRoleList(obj);				
-			}break;
-			default:{//数据同步
-				this.syncData(obj);;
-			}break;
-		}
-	}
-	/**
-	 * 执行方法前验证
-	 * @param obj
-	 * @return
-	 */
-	public boolean before(JSONObject obj){
-		if(this.userid==null){//如果用未登录，一切方法都不能执行
-			JSONObject msg = new JSONObject();
-			msg.put("a", Constants.AVTIVE_TYPE.ALERT);
-			msg.put("c", Constants.RESULT_CODE.FAIL);
-			msg.put("m", "用户未登录");
-			this.sendMsg(msg.toString());
-			return false;
-		}
-		return true;
-	}
-	/**
-	 * 填充sid
-	 * @param response
-	 * @param request
-	 * @return
-	 */
-	public JSONObject initSessionId(JSONObject response,JSONObject request){
-		if(response == null){
-			response = new JSONObject();
-		}
-		response.put("sid", request.get("sid"));
-		response.put("a", request.get("a"));
-		return response;
-	}
-	/**
-	 * 登录
-	 * @param obj
-	 */
-	public void login(JSONObject obj){		
-		String account = obj.getString("u");
-		String password = obj.getString("p");
-		JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
-		log.debug(result.toString());
-		JSONObject res = new JSONObject();
-		res = this.initSessionId(res, obj);
-		if(result.getInt("code")==Constants.RESULT_CODE.SUCCESS||true){//如果用户登录成功，加入在线用户列表
-			this.userid = account;
-			Map<String,Object> usermap = UserBs.bs.getUserInfo(account, result);
-			if(usermap!=null){
-				res.put("userinfo", JSONObject.fromObject(usermap));
-			}
-			MainServer.instance().addUser(account, this);
-		}
-		this.sendMsg(res.toString());
-	}
-	/**
-	 * 同步数据，将自己发出的指令同步到给其他用户
-	 * @param obj
-	 */
-	public void syncData(JSONObject obj){
-		if(!before(obj)) return;
-		MainServer.instance().sendData2All(obj.toString());
-	}
-	/**
-	 * 获取角色列表
-	 * @param obj
-	 */
-	public void getRoleList(JSONObject obj){
-		if(!before(obj)) return;
-		String sql = PropUtil.getInstance().getValue("sql.role.list");
-		List<Map<String,Object>> list = DbUtil.list(null, sql,this.userid);
-		JSONObject data = this.initSessionId(null, obj);
-		data.put("d", list);
-		this.sendMsg(data.toString());
-	}
-	/**
-	 * 获取角色信息
-	 * @param obj
-	 */
-	public void getRoleInfo(JSONObject obj){
-		if(!before(obj)) return;
-		
-		
-	}
-	/**
-	 * 创建角色
-	 * @param obj
-	 */
-	public void createRole(JSONObject obj){
-		if(!before(obj)) return;
-		String rolename = obj.getString("name");
-		String img = obj.getString("img");
-		String sql = PropUtil.getInstance().getValue("sql.role.insert");
-		boolean result = DbUtil.update(null, sql,this.userid,rolename,img);
-		JSONObject data = this.initSessionId(null, obj);
-		data.put("c", result?Constants.RESULT_CODE.SUCCESS:Constants.RESULT_CODE.FAIL);
-		this.sendMsg(data.toString());
-	}
-	/**
-	 * 删除角色
-	 * @param obj
-	 */
-	public void deleteRole(JSONObject obj){
-		if(!before(obj)) return;
-		
-	}
-	/**
-	 * 更新角色，包括角色名称，角色装备信息
-	 * @param obj
-	 */
-	public void updateRole(JSONObject obj){
-		if(!before(obj)) return;
-		
-	}
-	/**
-	 * 使用物品
-	 * @param obj
-	 */
-	public void useItem(JSONObject obj){
-		if(!before(obj)) return;
-		
-	}
-	/**
-	 * 加入游戏
-	 * @param obj
-	 */
-	public void joinGame(JSONObject obj){
-		if(!before(obj)) return;
-		
-	}
+	
 }

@@ -175,6 +175,7 @@ public class PropUtil {
     	try {
     		OutputStream out = new FileOutputStream(filePath);
 			prop.store(out, "");
+			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -199,6 +200,8 @@ public class PropUtil {
     }
     /**
      * 获取value中的配置key
+     * <br/>
+     * 配置中的书写方式key=${key1}asdfasdf
      * @param value
      * @return
      */

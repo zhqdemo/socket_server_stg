@@ -15,6 +15,7 @@ import org.junit.Test;
 import net.sf.json.JSONObject;
 import sun.misc.Cache;
 import util.HttpUtil;
+import util.LogUtil;
 import util.PropUtil;
 
 public class CommonTest {
@@ -65,6 +66,10 @@ public class CommonTest {
 	public void 用户登录(){
 		JSONObject obj = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account=zhangqing&password=202cb962ac59075b964b7152d234b70");
 		System.out.println(obj);		
+	}
+	@Test
+	public void 日志测试(){
+		LogUtil.info("", this, "test");
 	}
 	
 }

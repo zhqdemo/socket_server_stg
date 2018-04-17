@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -39,8 +40,9 @@ public class ManagerClientSocket extends Thread{
 	@Override
 	public void run() {	
 		this.socketParse.parse("开始读取数据");
-		try{			
+		try{	
 			String line = br.readLine();
+			System.out.println(line);
 			while(line!=null){
 				this.socketParse.parse(line);
 				if(client.isClosed()){
@@ -59,6 +61,12 @@ public class ManagerClientSocket extends Thread{
 		}
 	}	
 	public void sendMsg(String msg){
+		try {
+			msg = new String(msg.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		pw.write(msg+"\n");
 		pw.flush();
 	}

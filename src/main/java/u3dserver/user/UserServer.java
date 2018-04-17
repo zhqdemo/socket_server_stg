@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.List;
@@ -110,6 +111,12 @@ public class UserServer extends Thread{
 	 * @param data
 	 */
 	public void sendMsg(String data){
+		try {
+			data = new String(data.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		pw.write(data+"\n");
 		pw.flush();
 	}

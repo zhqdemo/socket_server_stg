@@ -29,4 +29,28 @@ public class UserBs {
 		}
 		return DbUtil.Record2map(userInfo);
 	}
+	/**
+	 * 用户登录
+	 * @param account
+	 * @param password
+	 * @return
+	 */
+	@Deprecated
+	public JSONObject login(String account,String password){
+		JSONObject obj = new JSONObject();
+		String sql_login = PropUtil.getInstance().getValue("sql.login.info");
+		Record loginuser = DbUtil.info(null, sql_login,account);
+		if(loginuser!=null){
+			String p = loginuser.getStr("password");
+			if(p!=null&&p.equals("password")){
+				obj.put("code", 0);//账号不存在
+				obj.put("data", loginuser);
+			}else{
+				obj.put("code", 6);//账号不存在
+			}
+		}else{
+			obj.put("code", 8);//账号不存在
+		}
+		return obj;
+	}
 }

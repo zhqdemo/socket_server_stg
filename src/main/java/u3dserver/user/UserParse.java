@@ -75,8 +75,10 @@ public class UserParse {
 	public void login(JSONObject obj){		
 		String account = obj.getString("u");
 		String password = obj.getString("p");
-		JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
-		log.debug(result.toString());
+		//账号认证暂时写在本地用数据查，实际应该通过接口统一管理
+		//JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
+		JSONObject result = UserBs.bs.login(account, password);
+		log.info("登录信息："+result.toString());
 		JSONObject res = new JSONObject();
 		res = this.initSessionId(res, obj);
 		if(result.getInt("code")==Constants.RESULT_CODE.SUCCESS||true){//如果用户登录成功，加入在线用户列表
@@ -87,6 +89,7 @@ public class UserParse {
 			}
 			MainServer.instance().addUser(account, server);
 		}
+		log.info("服务器返回"+res.toString());
 		server.sendMsg(res.toString());
 	}
 	/**

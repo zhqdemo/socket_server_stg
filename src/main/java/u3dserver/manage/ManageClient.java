@@ -71,7 +71,7 @@ public class ManageClient extends JFrame implements SocketParse{
 		textArea.setEditable(false);
 		textArea.setRows(3);
 		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);		
+		textArea.setWrapStyleWord(true);	
 		//panel_4.add(textArea);
 		
 		scrollPane = new ScrollPane();

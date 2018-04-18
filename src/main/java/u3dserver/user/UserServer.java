@@ -23,6 +23,7 @@ import u3dserver.dao.UserDao;
 import util.Constants;
 import util.DbUtil;
 import util.HttpUtil;
+import util.LogUtil;
 import util.PropUtil;
 /**
  * 用户socket服务线程
@@ -30,7 +31,6 @@ import util.PropUtil;
  *
  */
 public class UserServer extends Thread{
-	Logger log = Logger.getLogger(this.getClass());
 	InputStream input;
 	BufferedReader reader;
 	OutputStream out;
@@ -50,7 +50,6 @@ public class UserServer extends Thread{
 	 * @param socket
 	 */
 	public UserServer(Socket socket){
-		log.info("init");
 		try{
 			this.socket = socket;			
 			input = socket.getInputStream();
@@ -68,7 +67,6 @@ public class UserServer extends Thread{
 			//输入流
 			String data = reader.readLine();
 			while (data!=null) {
-				log.info("服务器接收到请求："+data);
 				//将收到的数据发送给客户端
 				if(data.equals("exit")){
 					pw.write("connect closed;\n");
@@ -87,7 +85,7 @@ public class UserServer extends Thread{
 						MainServer.instance().unonline();
 						if(this.userid!=null){							
 							MainServer.instance().deleteUser(this.userid);
-							log.info("用户下线："+this.userid);
+							LogUtil.info(this.getUserid(), this, "用户下线："+this.userid);
 						}
 					}else{						
 						data = reader.readLine();
@@ -111,6 +109,7 @@ public class UserServer extends Thread{
 	 * @param data
 	 */
 	public void sendMsg(String data){
+		LogUtil.info(this.getUserid(), this, "向客户端发出消息："+data);
 		try {
 			data = new String(data.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
@@ -125,6 +124,7 @@ public class UserServer extends Thread{
 	 * @param data 包括{a:动作指令,sid:sessionid每一个请求的唯一标示,返回消息时一并返回，用来跟客户端请求配对,...}
 	 */
 	private void readData(String data){
+		LogUtil.info(this.getUserid(), this, "服务器接收到请求："+data);
 		//sendMsg(data);
 		JSONObject obj = null;
 		JSONArray array = null;
@@ -135,7 +135,7 @@ public class UserServer extends Thread{
 				array = JSONArray.fromObject(data);
 			}
 		}catch(Exception e){
-			log.error("收到数据非json"+data);
+			LogUtil.error(this.getUserid(), this, "收到数据非json"+data);
 			//e.printStackTrace();
 			return;
 		}
@@ -149,7 +149,7 @@ public class UserServer extends Thread{
 					//解析指令
 					parse.parse(active, obj);
 				}catch(Exception e){
-					log.error("json解析错误"+obj.toString());
+					LogUtil.error(this.getUserid(), this, "json解析错误"+obj.toString());
 					//e.printStackTrace();
 					return;
 				}

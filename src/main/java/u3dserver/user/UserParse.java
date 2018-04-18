@@ -11,10 +11,10 @@ import u3dserver.business.UserBs;
 import util.Constants;
 import util.DbUtil;
 import util.HttpUtil;
+import util.LogUtil;
 import util.PropUtil;
 
 public class UserParse {
-	Logger log = Logger.getLogger(this.getClass());
 	private UserServer server = null;
 	public UserParse(UserServer server){
 		this.server = server;
@@ -78,7 +78,7 @@ public class UserParse {
 		//账号认证暂时写在本地用数据查，实际应该通过接口统一管理
 		//JSONObject result = HttpUtil.getSimpleHttpresult(PropUtil.getInstance().getValue("api.user.login"), "?account="+account+"&password="+password);
 		JSONObject result = UserBs.bs.login(account, password);
-		log.info("登录信息："+result.toString());
+		LogUtil.info(this.server.getUserid(), this, "收到数据json"+result.toString());
 		JSONObject res = new JSONObject();
 		res = this.initSessionId(res, obj);
 		if(result.getInt("code")==Constants.RESULT_CODE.SUCCESS||true){//如果用户登录成功，加入在线用户列表
@@ -89,7 +89,7 @@ public class UserParse {
 			}
 			MainServer.instance().addUser(account, server);
 		}
-		log.info("服务器返回"+res.toString());
+		LogUtil.info(this.server.getUserid(), this, "服务器返回"+res.toString());
 		server.sendMsg(res.toString());
 	}
 	/**

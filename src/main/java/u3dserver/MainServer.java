@@ -10,10 +10,11 @@ import java.util.Map;
 import com.jfinal.log.Logger;
 
 import u3dserver.user.UserServer;
+import util.LogUtil;
 import util.PropUtil;
 
 public class MainServer{
-	private Logger log = Logger.getLogger(this.getClass());
+	private String serverPath = "server";
 	/**监听端口*/
 	private int prot = Integer.parseInt(PropUtil.getInstance().getValue("server.port"));
 	/**在线人数*/
@@ -35,9 +36,9 @@ public class MainServer{
 		try {
 			ServerSocket server = new ServerSocket(prot);			
 			new StartServer(server).start();
-			log.info("服务启动成功，监听端口："+prot);
+			LogUtil.info(serverPath, this, "服务启动成功，监听端口："+prot);
 		} catch (IOException e) {
-			log.error("服务器启动失败："+e.getMessage());
+			LogUtil.error(serverPath, this, "服务器启动失败："+e.getMessage());
 			e.printStackTrace();
 		}
 		
@@ -90,7 +91,7 @@ public class MainServer{
 	 * @param data
 	 */
 	public void sendData2All(String data){
-		log.info("发送消息给所有用户:"+listUser.size());
+		LogUtil.info(serverPath, this, "发送消息给所有用户:"+listUser.size()+""+data);
 		for(String id:listUser){
 			UserServer userServer = mapUser.get(id);
 			userServer.sendMsg(data);
@@ -102,7 +103,7 @@ public class MainServer{
 	 * @param user
 	 */
 	public void addUser(String id,UserServer user){
-		log.info("加入新用户:"+id);
+		LogUtil.info(serverPath, this, "加入新用户:"+id);
 		UserServer u = mapUser.get(id);
 		mapUser.put(id, user);
 		if(u!=null){

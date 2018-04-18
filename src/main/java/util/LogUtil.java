@@ -39,14 +39,14 @@ public class LogUtil {
 		//prop.keys();
 	}
 	/**自身实例化对象*/
-	private static LogUtil logins = new LogUtil();
+	private static LogUtil logself = new LogUtil();
 	/**
 	 * 获取日志
 	 * @param path 路径
 	 * @param clas 日志输出所在对象
 	 * @return
 	 */
-	public static Logger getLog(String path,Object clas){
+	private Logger getLog(String path,Object clas){
 		String key = path;
 		//没有指明路径的保存在defualt文件夹中
 		if(key==null||key.equals("")){
@@ -55,60 +55,62 @@ public class LogUtil {
 		//Logger log=Logger.getLogger(th+"-"+key);
 		Logger log = null;//=Logger.getLogger(key);
 		//生成新的Appender.并将配置文件中输出到文件日志的不配拿到并生成新的日志配置，并将之前的删掉
-		if(logins.appender==null){
-			logins.appender =  (RollingFileAppender) Logger.getRootLogger().getAppender(logins.fileAppender);
+		if(logself.appender==null){
+			logself.appender =  (RollingFileAppender) Logger.getRootLogger().getAppender(logself.fileAppender);
 			//Logger.getRootLogger().removeAppender(fileAppender);
 		}
-		logins.logPath = logins.prop.getProperty("log4j.fileappender.file");
+		logself.logPath = logself.prop.getProperty("log4j.fileappender.file");
 		//将文件名进行格式化
 		Calendar calendar = Calendar.getInstance();
-		if(logins.logPath.contains("@y")){//以年输出
+		if(logself.logPath.contains("@y")){//以年输出
 			String year = ""+calendar.get(Calendar.YEAR);
-			logins.logPath = logins.logPath.replace("@y", year);
-		}else if(logins.logPath.contains("@m")){//以月
+			logself.logPath = logself.logPath.replace("@y", year);
+		}else if(logself.logPath.contains("@m")){//以月
 			String year = ""+calendar.get(Calendar.YEAR);
 			String month = ""+(calendar.get(Calendar.MONTH)+1);
-			logins.logPath = logins.logPath.replace("@m", year+"-"+month);
-		}else if(logins.logPath.contains("@w")){//以周
+			logself.logPath = logself.logPath.replace("@m", year+"-"+month);
+		}else if(logself.logPath.contains("@w")){//以周
 			String year = ""+calendar.get(Calendar.YEAR);
 			String month = ""+(calendar.get(Calendar.MONTH)+1);
 			String week = ""+calendar.get(Calendar.WEEK_OF_MONTH);
-			logins.logPath = logins.logPath.replace("@w", year+"-"+month+"-"+week+"week");
-		}else if(logins.logPath.contains("@d")){//以日
+			logself.logPath = logself.logPath.replace("@w", year+"-"+month+"-"+week+"week");
+		}else if(logself.logPath.contains("@d")){//以日
 			String year = ""+calendar.get(Calendar.YEAR);
 			String month = ""+(calendar.get(Calendar.MONTH)+1);
 			String day = ""+calendar.get(Calendar.DAY_OF_MONTH);
-			logins.logPath = logins.logPath.replace("@d", year+"-"+month+"-"+day);
-		}else if(logins.logPath.contains("@h")){//以小时
+			logself.logPath = logself.logPath.replace("@d", year+"-"+month+"-"+day);
+		}else if(logself.logPath.contains("@h")){//以小时
 			String year = ""+calendar.get(Calendar.YEAR);
 			String month = ""+(calendar.get(Calendar.MONTH)+1);
 			String day = ""+calendar.get(Calendar.DAY_OF_MONTH);
 			String h = ""+calendar.get(Calendar.HOUR_OF_DAY);
-			logins.logPath = logins.logPath.replace("@h", year+"-"+month+"-"+day+" "+h+"h");
+			logself.logPath = logself.logPath.replace("@h", year+"-"+month+"-"+day+" "+h+"h");
 		}
-		String logPashts[] = logins.logPath.replace("\\", "/").split("/");
+		String logPashts[] = logself.logPath.replace("\\", "/").split("/");
 		String fileName = logPashts[logPashts.length-1].replace(".log", "");
-		if(logins.map.get(key)!=null&&logins.map.get(key).equals(fileName)){
-			return Logger.getLogger(key);			
+		if(logself.map.get(key)!=null&&logself.map.get(key).equals(fileName)){
+			return Logger.getLogger(clas.getClass());			
 		}
 		//重置装配日志的配置
-		log=Logger.getLogger(key);
-		String path1 = logins.logPath.replace("@o", key);
+		//return Logger.getLogger(clas.getClass());			
+		log=Logger.getLogger(clas.getClass());	
+		//log.removeAppender("file");
+		String path1 = logself.logPath.replace("@o", key);
 		RollingFileAppender appender1 = new RollingFileAppender();
 		appender1.setName(key+" "+fileName);
-        appender1.setLayout(logins.appender.getLayout());
+        appender1.setLayout(logself.appender.getLayout());
         appender1.setFile(path1);
-        appender1.setAppend(logins.appender.getAppend());
-        appender1.setBufferedIO(logins.appender.getBufferedIO());
-        appender1.setBufferSize(logins.appender.getBufferSize());
-        appender1.setMaxBackupIndex(logins.appender.getMaxBackupIndex());
-        appender1.setMaximumFileSize(logins.appender.getMaximumFileSize());
-        appender1.setEncoding(logins.appender.getEncoding());
+        appender1.setAppend(logself.appender.getAppend());
+        appender1.setBufferedIO(logself.appender.getBufferedIO());
+        appender1.setBufferSize(logself.appender.getBufferSize());
+        appender1.setMaxBackupIndex(logself.appender.getMaxBackupIndex());
+        appender1.setMaximumFileSize(logself.appender.getMaximumFileSize());
+        appender1.setEncoding(logself.appender.getEncoding());
         appender1.activateOptions();
         log.removeAllAppenders();
         log.addAppender(appender1);
-        log.setLevel(Level.toLevel(logins.level));
-        logins.map.put(key,fileName);
+        log.setLevel(Level.toLevel(logself.level));
+        logself.map.put(key,fileName);
 		return log;
 	}
 	/**
@@ -117,7 +119,7 @@ public class LogUtil {
 	 * @param msg 日志信息
 	 */
 	public static void info(String path,Object clas,Object msg){
-		getLog(path, clas).info(msg);
+		logself.getLog(path, clas).info(msg);
 	}
 	/**
 	 * @param path 路径
@@ -125,7 +127,7 @@ public class LogUtil {
 	 * @param msg 日志信息
 	 */
 	public static void debug(String path,Object clas,Object msg){
-		getLog(path, clas).debug(msg);
+		logself.getLog(path, clas).debug(msg);
 	}
 	/**
 	 * @param path 路径
@@ -133,7 +135,7 @@ public class LogUtil {
 	 * @param msg 日志信息
 	 */
 	public static void error(String path,Object clas,Object msg){
-		getLog(path, clas).error(msg);
+		logself.getLog(path, clas).error(msg);
 	}
 	
 }
